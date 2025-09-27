@@ -1,0 +1,349 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#ffffff" />
+  <title>Маршруты — прототип для пользователей</title>
+  <style>
+    :root{
+      --bg:#ffffff;--ink:#0b0c10;--muted:#667085;--brand:#0a84ff;--brand-2:#0a6cff;--card:#f7f8fa;--br:#e6e7ea;--rad:16px;--shadow:0 10px 24px rgba(0,0,0,.06);
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+    }
+    *{box-sizing:border-box}
+    html{font-size:16px}
+    @media (max-width:420px){html{font-size:15.5px}}
+    body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.45 system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;-webkit-font-smoothing:antialiased}
+    .wrap{max-width:940px;margin:0 auto;padding:18px 16px calc(110px + var(--safe-bottom))}
+
+    /* Header */
+    header{position:sticky;top:0;z-index:5;background:rgba(255,255,255,.9);backdrop-filter:blur(10px);border-bottom:1px solid var(--br)}
+    .bar{max-width:940px;margin:0 auto;padding:12px 16px;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+    .logo{width:28px;height:28px;border-radius:10px;background:linear-gradient(135deg,#b3e5ff,#0a84ff);box-shadow:inset 0 0 0 1px rgba(255,255,255,.75),0 6px 14px rgba(10,132,255,.25)}
+    .title{font-weight:800;letter-spacing:.2px;flex:1 1 auto;min-width:200px}
+    .lang{margin-left:auto;border:1px solid var(--br);border-radius:10px;padding:8px 10px;background:#fff;font-size:15px}
+
+    /* Hero */
+    .hero{padding:16px 0}
+    h1{margin:.2em 0;font-size:clamp(22px,3.2vw,28px);letter-spacing:-.3px}
+    .muted{color:var(--muted)}
+
+    /* Controls */
+    .panel{background:var(--card);border:1px solid var(--br);border-radius:18px;padding:12px;box-shadow:var(--shadow)}
+    .grid{display:grid;gap:10px}
+    @media(min-width:720px){.grid{grid-template-columns:1fr 1fr}}
+    label{font-size:13px;font-weight:700;color:#111827}
+    select, input[type=time]{width:100%;appearance:none;padding:12px 12px;border:1px solid var(--br);border-radius:12px;background:#fff;font-size:16px}
+    .row{display:grid;gap:8px}
+    .btn{display:inline-flex;align-items:center;justify-content:center;padding:12px 16px;border-radius:12px;border:1px solid transparent;background:linear-gradient(180deg,var(--brand),var(--brand-2));color:#fff;font-weight:700;text-decoration:none;cursor:pointer;box-shadow:0 8px 18px rgba(10,132,255,.22);min-height:44px;touch-action:manipulation}
+    .btn.ghost{background:#fff;color:#111;border-color:var(--br);box-shadow:none}
+
+    /* Results */
+    .results{margin-top:16px;display:grid;gap:12px;min-height:280px}
+    .card{background:#fff;border:1px solid var(--br);border-radius:18px;box-shadow:var(--shadow);overflow:hidden}
+    .head{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-bottom:1px solid var(--br);gap:10px}
+    @media (max-width:480px){ .head{flex-direction:column;align-items:flex-start} }
+    .badge{font-size:12px;color:#111;background:#eef6ff;border:1px solid #d8eaff;border-radius:999px;padding:6px 10px;font-weight:700;white-space:nowrap;max-width:100%;overflow:hidden;text-overflow:ellipsis}
+
+    /* Meta row */
+    .meta{display:flex;flex-wrap:wrap;gap:8px;padding:10px 14px;border-bottom:1px solid var(--br);background:#fff}
+    .chip{font-size:12px;background:#fff;border:1px solid var(--br);border-radius:999px;padding:6px 10px}
+
+    /* Map */
+    .map{height:clamp(180px, 34vh, 260px);background:linear-gradient(180deg,#f9fbff,#f4f6fa);position:relative;overflow:hidden;z-index:0}
+    .map svg{position:absolute;inset:0}
+
+    /* Video block */
+    .video{position:relative;background:#fff;border-top:1px solid var(--br);border-bottom:1px solid var(--br);margin-top:12px;overflow:hidden;z-index:0}
+    .frame{position:relative;width:100%;aspect-ratio:16/9;min-height:clamp(180px, 32vh, 260px);background:linear-gradient(180deg,#f7faff,#eef2f6)}
+    @supports not (aspect-ratio: 16/9){ .frame{height:0;padding-bottom:56.25%;min-height:0} }
+    .poster{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none}
+    .play{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:64px;height:64px;border-radius:50%;border:none;background:radial-gradient(circle at 30% 30%,#fff,#f4f6f8);box-shadow:0 10px 24px rgba(0,0,0,.18);cursor:pointer;z-index:2}
+    .play:before{content:"";display:block;margin:0 auto;width:0;height:0;border-left:18px solid #0a84ff;border-top:12px solid transparent;border-bottom:12px solid transparent}
+    .caption{padding:8px 12px;color:var(--muted);font-size:14px}
+    @media (pointer:fine){.play:hover{transform:translate(-50%,-50%) scale(1.04)}}
+
+    /* Gallery */
+    .gallery{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:8px;
+      padding:10px 12px;
+      border-top:1px solid var(--br);
+      background:#fff;
+      align-items:stretch;
+      justify-items:stretch;
+    }
+    @media(min-width:480px){ .gallery{grid-template-columns:repeat(3,minmax(0,1fr));} }
+    @media(min-width:900px){ .gallery{grid-template-columns:repeat(4,minmax(0,1fr));} }
+
+    .ph{
+      position:relative;
+      margin:0;
+      border-radius:12px;
+      overflow:hidden;
+      background:#e9eef6;
+      border:1px solid var(--br);
+      box-shadow:0 6px 14px rgba(10,132,255,.10)
+    }
+    /* Плейсхолдер, если нет изображения */
+    .ph:empty::before{content:"";display:block;width:100%;aspect-ratio:4/3;background:linear-gradient(135deg,#eef3ff,#e9eef6)}
+
+    .ph img{display:block;width:100%;height:100%;object-fit:cover;object-position:center;aspect-ratio:4/3;border-radius:inherit}
+
+    .pts{display:flex;flex-wrap:wrap;gap:8px;padding:10px 12px}
+    .pt{font-size:12px;background:#f2f4f7;border:1px solid var(--br);padding:6px 10px;border-radius:999px}
+
+    .foot{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;padding:12px 14px;border-top:1px solid var(--br)}
+    @media (max-width:480px){ .foot{justify-content:stretch} .foot .btn{flex:1 1 48%} }
+
+    /* Route animation */
+    @keyframes dash { from { stroke-dashoffset: var(--len); } to { stroke-dashoffset: 0; } }
+    .animate-route { stroke-dasharray: var(--len); stroke-dashoffset: var(--len); animation: dash 2s ease-in-out forwards; }
+    @media (prefers-reduced-motion: reduce){ .animate-route{ animation: none; } }
+
+    /* Sticky CTA */
+    .sticky{position:fixed;left:0;right:0;bottom:0;background:rgba(255,255,255,.94);backdrop-filter:blur(8px);border-top:1px solid var(--br);padding:10px 14px calc(10px + var(--safe-bottom));display:flex;gap:10px;align-items:center}
+    .sticky .text{flex:1;color:var(--muted)}
+  </style>
+</head>
+<body>
+  <header role="banner">
+    <div class="bar">
+      <span class="logo" aria-hidden="true"></span>
+      <div class="title" data-i18n="brand">Маршруты</div>
+      <select id="lang" class="lang" aria-label="Language">
+        <option value="ru">РУС</option>
+        <option value="en">EN</option>
+        <option value="zh-CN">简体</option>
+      </select>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="hero">
+      <h1 data-i18n="heroTitle">Найдите маршрут под себя</h1>
+      <p class="muted" data-i18n="heroLead">Выберите цель, длительность и точку старта — мы соберём маршрут, карту и видеообзор.</p>
+    </section>
+
+    <section class="panel" aria-label="Фильтры маршрута">
+      <div class="grid">
+        <div class="row">
+          <label for="goal" data-i18n="goal">Цель</label>
+          <select id="goal">
+            <option value="culture">Культура</option>
+            <option value="food">Гастрономия</option>
+            <option value="sport">Спорт</option>
+            <option value="history">История</option>
+            <option value="work">Работа</option>
+          </select>
+        </div>
+        <div class="row">
+          <label for="duration" data-i18n="duration">Длительность</label>
+          <select id="duration">
+            <option value="2h">~ 2 часа</option>
+            <option value="half">Полдня</option>
+            <option value="day">Целый день</option>
+            <option value="weekend">Выходной</option>
+          </select>
+        </div>
+        <div class="row">
+          <label for="start" data-i18n="start">Точка сбора</label>
+          <select id="start">
+            <option value="kremlin">Район Кремля</option>
+            <option value="chkalov">Чкаловская лестница</option>
+            <option value="nizh">Нижегородская ярмарка</option>
+            <option value="sormovo">Сормово</option>
+          </select>
+        </div>
+        <div class="row">
+          <label for="time" data-i18n="time">Время старта (по желанию)</label>
+          <input id="time" type="time" />
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;margin-top:12px">
+        <button class="btn" id="go" data-i18n="show">Показать маршрут</button>
+        <button class="btn ghost" id="shuffle" data-i18n="random" title="Случайная подборка">Случайно</button>
+      </div>
+    </section>
+
+    <section class="results" id="results" aria-live="polite"></section>
+  </main>
+
+  <div class="sticky" role="contentinfo">
+    <div class="text" data-i18n="footNote">Демо‑прототип: интерфейс для пользователей</div>
+    <a class="btn" href="#" onclick="window.scrollTo({top:0,behavior:'smooth'})" data-i18n="toTop">Наверх</a>
+  </div>
+
+  <script>
+(()=>{
+  try{
+    /* ===== i18n ===== */
+    const dict = {
+      ru:{brand:'Маршруты', heroTitle:'Найдите маршрут под себя', heroLead:'Выберите цель, длительность и точку старта — мы соберём маршрут, карту и видеообзор.',
+          goal:'Цель', duration:'Длительность', start:'Точка сбора', time:'Время старта (по желанию)', show:'Показать маршрут', random:'Случайно',
+          startShort:'Старт', points:'Точек', distance:'Дистанция', onway:'В пути', videoCaption:'Здесь можно посмотреть видеообзор маршрута', print:'Печать', share:'Поделиться', openYandex:'Открыть в Яндекс.Картах', footNote:'Демо‑прототип: пользовательский интерфейс', toTop:'Наверх'},
+      en:{brand:'Routes', heroTitle:'Find a route that fits you', heroLead:'Pick goal, duration and start point — we will assemble the route, map and a video preview.',
+          goal:'Goal', duration:'Duration', start:'Start point', time:'Start time (optional)', show:'Show route', random:'Shuffle',
+          startShort:'Start', points:'Points', distance:'Distance', onway:'ETA', videoCaption:'Watch a video preview of this route here', print:'Print', share:'Share', openYandex:'Open in Yandex Maps', footNote:'Demo prototype: user interface', toTop:'Top'},
+      'zh-CN':{brand:'路线', heroTitle:'找到适合你的路线', heroLead:'选择目的、时长和集合点——我们会生成路线、地图和视频预览。',
+          goal:'目的', duration:'时长', start:'集合点', time:'开始时间（可选）', show:'显示路线', random:'随机',
+          startShort:'起点', points:'点位', distance:'距离', onway:'用时', videoCaption:'在此观看路线视频预览', print:'打印', share:'分享', openYandex:'在Yandex地图中打开', footNote:'演示原型：用户界面', toTop:'顶部'}
+    };
+    const $ = s=>document.querySelector(s);
+    const $$ = s=>Array.from(document.querySelectorAll(s));
+
+    function t(key){
+      const sel = $('#lang');
+      const l = sel ? sel.value : 'ru';
+      if(dict[l] && dict[l][key]) return dict[l][key];
+      if(dict['ru'] && dict['ru'][key]) return dict['ru'][key];
+      return key;
+    }
+
+    function applyI18n(l){
+      const sel = $('#lang'); if(sel) sel.value = l;
+      $$('[data-i18n]').forEach(el=>{ el.textContent = t(el.dataset.i18n); });
+      const mapGoal = { culture:{ru:'Культура',en:'Culture','zh-CN':'文化'}, food:{ru:'Гастрономия',en:'Food','zh-CN':'美食'}, sport:{ru:'Спорт',en:'Sport','zh-CN':'运动'}, history:{ru:'История',en:'History','zh-CN':'历史'}, work:{ru:'Работа',en:'Work','zh-CN':'工作'} };
+      const mapDur = { '2h':{ru:'~ 2 часа',en:'~ 2 hours','zh-CN':'约2小时'}, half:{ru:'Полдня',en:'Half day','zh-CN':'半天'}, day:{ru:'Целый день',en:'Full day','zh-CN':'一整天'}, weekend:{ru:'Выходной',en:'Weekend','zh-CN':'周末'} };
+      const mapStart = { kremlin:{ru:'Район Кремля',en:'Kremlin area','zh-CN':'克里姆林区域'}, chkalov:{ru:'Чкаловская лестница',en:'Chkalov staircase','zh-CN':'契卡洛夫阶梯'}, nizh:{ru:'Нижегородская ярмарка',en:'Fair','zh-CN':'展会中心'}, sormovo:{ru:'Сормово',en:'Sormovo','zh-CN':'索尔莫沃'} };
+      const goalSel = $('#goal'); const durSel = $('#duration'); const startSel = $('#start');
+      if(goalSel) [...goalSel.options].forEach(o=>{ const k=o.value; if(mapGoal[k]) o.textContent = mapGoal[k][l]||mapGoal[k].ru; });
+      if(durSel)  [...durSel.options].forEach(o=>{ const k=o.value; if(mapDur[k])  o.textContent = mapDur[k][l] || mapDur[k].ru; });
+      if(startSel)[...startSel.options].forEach(o=>{ const k=o.value; if(mapStart[k])o.textContent = mapStart[k][l]|| mapStart[k].ru; });
+    }
+
+    function initLang(){
+      const saved = localStorage.getItem('lang');
+      const sys = ((navigator.language||'ru').toLowerCase().startsWith('zh')) ? 'zh-CN' : 'ru';
+      const lang = saved || sys;
+      const sel = $('#lang');
+      if(sel){ sel.value = lang; sel.addEventListener('change', e=>{ const l=e.target.value; localStorage.setItem('lang', l); applyI18n(l); generate(); }); }
+      applyI18n(lang);
+    }
+
+    /* ===== Demo data ===== */
+    const POIS = {
+      kremlin: [ { id:1, x:90, y:120 }, { id:2, x:160, y:110 }, { id:3, x:210, y:160 }, { id:4, x:250, y:120 }, { id:5, x:300, y:150 } ],
+      chkalov: [ { id:1, x:110, y:130 }, { id:2, x:180, y:170 }, { id:3, x:240, y:165 }, { id:4, x:290, y:125 } ],
+      nizh:    [ { id:1, x:140, y:130 }, { id:2, x:200, y:140 }, { id:3, x:260, y:150 }, { id:4, x:310, y:135 }, { id:5, x:340, y:160 } ],
+      sormovo: [ { id:1, x:120, y:150 }, { id:2, x:180, y:140 }, { id:3, x:240, y:155 } ]
+    };
+    const caps = {culture:{ru:'Культура',en:'Culture','zh-CN':'文化'}, food:{ru:'Гастрономия',en:'Food','zh-CN':'美食'}, sport:{ru:'Спорт',en:'Sport','zh-CN':'运动'}, history:{ru:'История',en:'History','zh-CN':'历史'}, work:{ru:'Работа',en:'Work','zh-CN':'工作'}};
+    const durs = { '2h':{ru:'~ 2 часа',en:'~ 2 hours','zh-CN':'约2小时'}, half:{ru:'Полдня',en:'Half day','zh-CN':'半天'}, day:{ru:'Целый день',en:'Full day','zh-CN':'一整天'}, weekend:{ru:'Выходной',en:'Weekend','zh-CN':'周末'} };
+    const starts = { kremlin:{ru:'Район Кремля',en:'Kremlin area','zh-CN':'克里姆林区域'}, chkalov:{ru:'Чкаловская лестница',en:'Chkalov staircase','zh-CN':'契卡洛夫阶梯'}, nizh:{ru:'Нижегородская ярмарка',en:'Fair','zh-CN':'展会中心'}, sormovo:{ru:'Сормово',en:'Sormovo','zh-CN':'索尔莫沃'} };
+
+    const anchors = { kremlin:[56.3287,44.0020], chkalov:[56.3296,44.0010], nizh:[56.3439,43.9630], sormovo:[56.3561,43.8443] };
+
+    function pickRoute(goal, duration, start){
+      const source = POIS[start] || POIS.kremlin;
+      let len = 4; if(duration==='2h') len=3; if(duration==='half') len=4; if(duration==='day') len=5; if(duration==='weekend') len=Math.min(6, source.length);
+      let arr = [...source];
+      if(goal === 'food') arr.sort((a,b)=> (a.id===3?-1:1));
+      if(goal === 'sport') arr.reverse();
+      if(goal === 'work') arr = arr.slice().sort((a,b)=>a.id-b.id);
+      return arr.slice(0, len);
+    }
+
+    function svgMini(points){
+      const w=380,h=200; const path = points.map((p,i)=>`${i?'L':'M'} ${p.x} ${p.y}`).join(' ');
+      const dots = points.map(p=>`<g>
+        <circle cx="${p.x}" cy="${p.y}" r="18" fill="#fff" stroke="#0a84ff" stroke-width="3"/>
+        <circle cx="${p.x}" cy="${p.y}" r="4" fill="#0a84ff"/>
+        <text x="${p.x}" y="${p.y+5}" text-anchor="middle" font-family="system-ui, -apple-system" font-size="12" font-weight="700" fill="#111">${p.id}</text>
+      </g>`).join('');
+      return `<svg viewBox="0 0 ${w} ${h}" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="mini map">
+        <defs>
+          <linearGradient id="bg" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="#f9fbff"/><stop offset="100%" stop-color="#f2f4f7"/></linearGradient>
+        </defs>
+        <rect width="100%" height="100%" fill="url(#bg)"/>
+        <path class="route-fat" d="${path}" fill="none" stroke="#b3d8ff" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+        <path class="route" d="${path}" fill="none" stroke="#0a84ff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+        ${dots}
+      </svg>`;
+    }
+
+    function distAndEta(points){
+      const distPx = points.reduce((s,p,i)=> i ? s + Math.hypot(p.x - points[i-1].x, p.y - points[i-1].y) : 0, 0);
+      const km = (distPx * 0.02); // demo scale
+      const mins = Math.max(10, Math.round((km/4.5)*60));
+      return { km: km.toFixed(1), eta: mins<60?`${mins} мин`:`${Math.floor(mins/60)} ч ${mins%60} мин` };
+    }
+
+    function toGeo(points, start){
+      const [alat,alon] = anchors[start] || anchors.kremlin; // pixels -> degrees approx
+      return points.map(p=>[ (alat + (p.y-150)*-0.00025).toFixed(6), (alon + (p.x-200)*0.00035).toFixed(6) ]);
+    }
+
+    function openYandexFromCard(btn){
+      const geo = btn?.dataset?.geo; if(!geo) return alert('Нет данных маршрута');
+      const rtext = geo.split('|').join('~');
+      const url = `https://yandex.ru/maps/?rtext=${rtext}&rtt=auto`;
+      window.open(url,'_blank','noopener');
+    }
+
+    function renderCard({goal, duration, start, time, points}){
+      const lang = $('#lang')?.value || 'ru';
+      const title = (caps[goal]||{} )[lang] || (caps[goal]||{} )['ru'] || '';
+      const dur = (durs[duration]||{} )[lang] || (durs[duration]||{} )['ru'] || '';
+      const startLbl = (starts[start]||{} )[lang] || (starts[start]||{} )['ru'] || '';
+      const {km, eta} = distAndEta(points);
+      const svg = svgMini(points);
+      const geo = toGeo(points, start).map(([la,lo])=>`${la},${lo}`).join('|');
+      return `
+      <article class="card">
+        <div class="head"><div><strong>${title}</strong> · <span class="muted">${dur}</span></div><span class="badge">${t('startShort')}: ${startLbl}${time?` · ${time}`:''}</span></div>
+        <div class="meta"><span class="chip">${t('points')}: ${points.length}</span><span class="chip">${t('distance')} ≈ ${km} км</span><span class="chip">${t('onway')} ≈ ${eta}</span></div>
+        <div class="map">${svg}</div>
+        <div class="video" data-video="">
+          <div class="frame"><div class="poster" aria-hidden="true"></div><button class="play" onclick="alert('Видео скоро будет доступно')" aria-label="play"></button></div>
+          <div class="caption" data-i18n="videoCaption">${t('videoCaption')}</div>
+        </div>
+        <div class="gallery" aria-label="Фотографии маршрута">
+          <figure class="ph" title="photo"></figure>
+          <figure class="ph" title="photo"></figure>
+          <figure class="ph" title="photo"></figure>
+          <figure class="ph" title="photo"></figure>
+          <figure class="ph" title="photo"></figure>
+          <figure class="ph" title="photo"></figure>
+        </div>
+        <div class="pts">${points.map(p=>`<span class='pt'>Точка ${p.id}</span>`).join('')}</div>
+        <div class="foot">
+          <button class="btn ghost" onclick="window.print()" data-i18n="print">${t('print')}</button>
+          <button class="btn ghost" onclick="navigator.share?navigator.share({title:'Route',url:location.href}):alert('Ссылка скопирована')" data-i18n="share">${t('share')}</button>
+          <button class="btn" data-geo="${geo}" onclick="openYandexFromCard(this)" data-i18n="openYandex">${t('openYandex')}</button>
+        </div>
+      </article>`
+    }
+
+    function animateRoute(){
+      const line = document.querySelector('#results .map svg .route');
+      if(line && line.getTotalLength){ const len = line.getTotalLength(); line.style.setProperty('--len', len); line.classList.add('animate-route'); }
+    }
+
+    function generate(){
+      const goal = $('#goal')?.value || 'culture';
+      const duration = $('#duration')?.value || 'half';
+      const start = $('#start')?.value || 'kremlin';
+      const time = $('#time')?.value || '';
+      const points = pickRoute(goal,duration,start);
+      const res = $('#results');
+      if(res){ res.innerHTML = renderCard({goal,duration,start,time,points}); }
+      animateRoute();
+    }
+
+    // Events
+    $('#go')?.addEventListener('click', generate);
+    $('#shuffle')?.addEventListener('click', ()=>{ ['#goal','#duration','#start'].forEach(sel=>{ const el=$(sel); if(el) el.selectedIndex=Math.floor(Math.random()*el.options.length); }); generate(); });
+
+    // Init
+    initLang();
+    generate();
+    // Recalculate after orientation / resize for better mobile stability
+    window.addEventListener('orientationchange', ()=> setTimeout(animateRoute, 300));
+    window.addEventListener('resize', ()=> { animateRoute(); });
+  }catch(e){ console.error(e); alert('Ошибка прототипа. Я исправлю. Обновите страницу.'); }
+})();
+</script>
+</body>
+</html>
