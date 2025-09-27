@@ -344,5 +344,25 @@
   }catch(e){ console.error(e); alert('Ошибка прототипа. Я исправлю. Обновите страницу.'); }
 })();
 </script>
-</body>
+<script>
+(function(){
+  const VK_HTML = '<iframe src="https://vk.com/video_ext.php?oid=-227813984&id=456239062&hd=2&autoplay=1" title="Видеообзор маршрута" allow="autoplay; encrypted-media; fullscreen; picture-in-picture; screen-wake-lock;" allowfullscreen frameborder="0"></iframe>';
+
+  function inject() {
+    document.querySelectorAll('.video .frame').forEach(f=>{
+      if(!f.querySelector('iframe')) f.innerHTML = VK_HTML;
+    });
+  }
+
+  // первичный рендер
+  if (document.readyState !== 'loading') inject();
+  else document.addEventListener('DOMContentLoaded', inject);
+
+  // если маршрут перерисовывается — подменяем снова
+  const target = document.getElementById('results');
+  if (target && 'MutationObserver' in window) {
+    new MutationObserver(inject).observe(target, {childList:true, subtree:true});
+  }
+})();
+</script>
 </html>
